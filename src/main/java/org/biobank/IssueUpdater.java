@@ -17,7 +17,7 @@ import com.taskadapter.redmineapi.bean.Version;
 
 public class IssueUpdater implements IRedmineTask {
 
-    private static Logger log = LoggerFactory.getLogger(RedmineTool.class);
+    private static Logger log = LoggerFactory.getLogger(IssueUpdater.class);
 
     private static IssueUpdater instance = null;
 
