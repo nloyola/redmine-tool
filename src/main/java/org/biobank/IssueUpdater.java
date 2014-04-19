@@ -1,4 +1,4 @@
-package ca.biosample;
+package org.biobank;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,27 +15,33 @@ import com.taskadapter.redmineapi.bean.Issue;
 import com.taskadapter.redmineapi.bean.Project;
 import com.taskadapter.redmineapi.bean.Version;
 
-public class UpdateIssues {
+public class IssueUpdater implements IRedmineTask {
 
-    private static Logger log = LoggerFactory.getLogger(UpdateIssues.class.getName());
+    private static Logger log = LoggerFactory.getLogger(RedmineTool.class);
 
-    private static String redmineHost = System.getProperty("redmineHost");
+    private static IssueUpdater instance = null;
 
-    private static String apiAccessKey = System.getProperty("redmineAccessKey");
+    private RedmineManager mgr;
 
-    private static String projectKey = System.getProperty("redmineProjectKey");
+    private String projectKey;
 
-    public static void main(String[] args) {
-        RedmineManager mgr = new RedmineManager(redmineHost, apiAccessKey);
-        try {
-            updateIssues(mgr);
-        } catch (Exception e) {
-            e.printStackTrace();
+    public static IssueUpdater getInstance() {
+        if (instance == null) {
+            instance = new IssueUpdater();
         }
+        return instance;
     }
 
-    private static void updateIssues(RedmineManager mgr)
-        throws RedmineException {
+    @Override
+    public void doWork() throws RedmineException {
+        if (mgr == null) {
+            throw new IllegalStateException("redmine manager has not been set");
+        }
+
+        if (projectKey == null) {
+            throw new IllegalStateException("redmine proeject key has not been set");
+        }
+
         Project project = mgr.getProjectByKey(projectKey);
 
         Map<String, String> parameters = new HashMap<String, String>();
@@ -79,5 +85,15 @@ public class UpdateIssues {
         }
 
         log.trace("number of resolved issues: {}", resolvedIssues.size());
+    }
+
+    @Override
+    public void setRedmineManager(RedmineManager mgr) {
+        this.mgr = mgr;
+    }
+
+    @Override
+    public void setProjectKey(String projectKey) {
+        this.projectKey = projectKey;
     }
 }
